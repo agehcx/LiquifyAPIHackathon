@@ -1,12 +1,17 @@
-# LiquifyIndexerAPI
+# LiquifyIndexerAPI — DeFi TaxGen + x402
 
-> Project brief TBD — full idea incoming.
+> Paste a wallet address → get a tax-ready IRS Form 8949 CSV in minutes.
+> Free summary with blurred figures; full CSV export gated by a $2 USDC x402 micropayment on Base Sepolia.
 
 ## Stack
 
-- **Express.js** — API Framework
-- **PostgreSQL** — Database
-- **TypeScript** — Type safety
+- **Next.js 16** (App Router, Turbopack)
+- **React 19** + **TypeScript 5**
+- **Tailwind CSS 4**
+- **wagmi v3 + viem v2** — wallet connection & tx signing
+- **x402-next / x402-fetch** — HTTP 402 micropayment gate
+- **decimal.js** — float-safe tax math
+- **vitest** — 44 unit/integration tests
 
 ## Getting Started
 
@@ -24,16 +29,35 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start local dev server |
+| `npm run build` | Production build |
+| `npm test` | Run all 44 tests (vitest) |
+| `npm run lint` | ESLint check |
+| `npm run typecheck` | TypeScript type check |
+
 ## Project Structure
 
 ```
 src/
-  app/          # Next.js App Router pages and layouts
-  components/   # Shared UI components
-  hooks/        # Custom React hooks
-  lib/          # Utilities, helpers, constants
-  types/        # TypeScript types
-public/         # Static assets
+  app/            # Next.js App Router pages, layouts, API routes
+    api/summary/  # Free summary endpoint (per-row USD withheld)
+    api/export/   # x402-gated CSV export ($2 USDC)
+    report/       # Dashboard page
+  components/     # UI: dashboard, scan, payment, wallet, primitives, layout
+  hooks/          # useExportPayment, useTaxReport, useWalletAddress
+  lib/
+    tax/          # Pure tax engine: money, classify, fifo, aggregate, buildReport
+    liquify/      # Mock Liquify client + fixtures (interface-first)
+    pricing/      # Mock price oracle + fixtures
+    export/       # CSV exporter (Form 8949)
+    report/       # In-memory report cache (10-min TTL)
+    config/       # wagmi + env helpers
+  types/          # domain.ts, api.ts, enums.ts
+public/           # Static assets
 ```
 
 ## Governance
@@ -53,8 +77,3 @@ fix: resolve hydration mismatch on home page
 chore: update dependencies
 ```
 
-All Claude-assisted commits include:
-```
-Co-authored-by: Claude <noreply@anthropic.com>
-```
-# LiquifyAPIHackathon

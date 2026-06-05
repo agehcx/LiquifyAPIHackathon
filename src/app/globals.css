@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — see design/ci-brand.md (authoritative source).
+ * Tailwind v4 @theme names are kept short so utilities read cleanly:
+ *   canvas/surface/elevated -> backgrounds   (bg-canvas, bg-surface, bg-elevated)
+ *   line                    -> borders        (border-line)
+ *   ink/subtle/muted        -> text           (text-ink, text-subtle, text-muted)
+ *   brand/brand-hover       -> brand accent   (bg-brand, text-brand)
+ *   success/error/warning/info -> semantic status
+ */
+
+:root {
+  /* Backgrounds */
+  --bg-base: #ffffff;
+  --bg-surface: #f8fafc;
+  --bg-elevated: #f1f5f9;
+
+  /* Borders */
+  --border-default: #e2e8f0;
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  /* Brand accent */
+  --brand-primary: #10b981;
+  --brand-primary-hover: #059669;
+  --brand-primary-muted: rgba(16, 185, 129, 0.12);
+  --brand-primary-glow: rgba(16, 185, 129, 0.18);
+
+  /* Semantic status */
+  --color-success-hex: #22c55e;
+  --color-error-hex: #ef4444;
+  --color-warning-hex: #f59e0b;
+  --color-info-hex: #3b82f6;
+}
+
+@theme inline {
+  --color-canvas: var(--bg-base);
+  --color-surface: var(--bg-surface);
+  --color-elevated: var(--bg-elevated);
+
+  --color-line: var(--border-default);
+
+  --color-ink: var(--text-primary);
+  --color-subtle: var(--text-secondary);
+  --color-muted: var(--text-muted);
+
+  --color-brand: var(--brand-primary);
+  --color-brand-hover: var(--brand-primary-hover);
+  --color-brand-muted: var(--brand-primary-muted);
+
+  --color-success: var(--color-success-hex);
+  --color-error: var(--color-error-hex);
+  --color-warning: var(--color-warning-hex);
+  --color-info: var(--color-info-hex);
+
+  /* Fonts — primary brand face is "Terrova"; Inter is the dev stand-in until
+     the licensed font files are dropped into public/fonts. Mono = JetBrains Mono. */
+  --font-sans: var(--font-sans-app), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-app), ui-monospace, "JetBrains Mono", monospace;
+
+  /* Shape language (design/ui-theme.md): buttons 8, cards 10, inputs 8, modals 16 */
+  --radius-btn: 8px;
+  --radius-card: 10px;
+  --radius-modal: 16px;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+
+/* Tabular numerals everywhere numeric alignment matters (ci-brand.md). */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

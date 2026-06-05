@@ -1,0 +1,74 @@
+[
+  {
+    "id": "0xa1:0",
+    "txHash": "0xa1",
+    "logIndex": 0,
+    "blockNumber": 20000000,
+    "timestamp": 1717200000,
+    "chainId": 1,
+    "protocol": "UNISWAP_V2",
+    "eventName": "Swap",
+    "wallet": "0x1111111111111111111111111111111111111111",
+    "sent": {
+      "tokenAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "symbol": "USDC",
+      "decimals": 6,
+      "raw": "2000000000"
+    },
+    "received": {
+      "tokenAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "symbol": "WETH",
+      "decimals": 18,
+      "raw": "1000000000000000000"
+    },
+    "raw": { "note": "buy 1 WETH @ $2000 (2024-06-01)" }
+  },
+  {
+    "id": "0xa2:0",
+    "txHash": "0xa2",
+    "logIndex": 0,
+    "blockNumber": 21500000,
+    "timestamp": 1738368000,
+    "chainId": 1,
+    "protocol": "UNISWAP_V3",
+    "eventName": "Swap",
+    "wallet": "0x1111111111111111111111111111111111111111",
+    "sent": {
+      "tokenAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "symbol": "USDC",
+      "decimals": 6,
+      "raw": "2500000000"
+    },
+    "received": {
+      "tokenAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "symbol": "WETH",
+      "decimals": 18,
+      "raw": "1000000000000000000"
+    },
+    "raw": { "note": "buy 1 WETH @ $2500 (2025-02-01)" }
+  },
+  {
+    "id": "0xa3:0",
+    "txHash": "0xa3",
+    "logIndex": 0,
+    "blockNumber": 22800000,
+    "timestamp": 1754006400,
+    "chainId": 1,
+    "protocol": "UNISWAP_V3",
+    "eventName": "Swap",
+    "wallet": "0x1111111111111111111111111111111111111111",
+    "sent": {
+      "tokenAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "symbol": "WETH",
+      "decimals": 18,
+      "raw": "1500000000000000000"
+    },
+    "received": {
+      "tokenAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "symbol": "USDC",
+      "decimals": 6,
+      "raw": "4500000000"
+    },
+    "raw": { "note": "sell 1.5 WETH @ $3000 (2025-08-01)" }
+  }
+]
