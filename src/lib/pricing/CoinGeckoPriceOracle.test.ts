@@ -89,7 +89,7 @@ describe("CoinGeckoPriceOracle", () => {
   });
 
   it("should throw PriceUnavailableError for non-ok responses", async () => {
-    mockFetch.mockImplementationOnce(() =>
+    mockFetch.mockImplementation(() =>
       Promise.resolve({
         ok: false,
         status: 404,
@@ -109,7 +109,7 @@ describe("CoinGeckoPriceOracle", () => {
   });
 
   it("should throw PriceUnavailableError for 429 rate limit errors", async () => {
-    mockFetch.mockImplementationOnce(() =>
+    mockFetch.mockImplementation(() =>
       Promise.resolve({
         ok: false,
         status: 429,
@@ -150,7 +150,7 @@ describe("CoinGeckoPriceOracle", () => {
   });
 
   it("should throw PriceUnavailableError if no price data is returned", async () => {
-    mockFetch.mockImplementationOnce(() =>
+    mockFetch.mockImplementation(() =>
       Promise.resolve({
         ok: true,
         json: () => Promise.resolve({ prices: [] }),

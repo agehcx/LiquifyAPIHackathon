@@ -94,3 +94,12 @@
 - **Design files reviewed:** `ci-brand.md`, `ui-theme.md`, `ux-principles.md` — all accurate and
   consistent with their intended scope. No changes needed.
 - **Next Steps:** No action required. All docs are now in sync with code.
+
+---
+
+## [2026-06-08 22:15] @manager & @developer — QA Testing & Fixes
+
+- **Summary:** Ran the test suite upon user request. Identified 3 failing tests in `CoinGeckoPriceOracle.test.ts`. Transitioned to `@developer` to fix the `PriceUnavailableError` construction and the test mock scope (`mockImplementationOnce` -> `mockImplementation`). Tests now all pass (56/56). Updated `current-state.md` accordingly.
+- **Files Modified:** `src/lib/pricing/CoinGeckoPriceOracle.test.ts`, `src/lib/pricing/PriceOracle.ts`, `memory-bank/current-state.md`, `logs/process.md`.
+- **Architectural Decisions:** Added an optional `reason` parameter to `PriceUnavailableError` to ensure more descriptive error propagation as expected by `CoinGeckoPriceOracle`.
+- **Next Steps:** Await next user directive.

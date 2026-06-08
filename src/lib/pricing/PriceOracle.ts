@@ -5,8 +5,9 @@ export class PriceUnavailableError extends Error {
   constructor(
     readonly tokenAddress: Address,
     readonly timestamp: number,
+    readonly reason?: string,
   ) {
-    super(`No USD price for ${tokenAddress} at ${timestamp}`);
+    super(`No USD price for ${tokenAddress} at ${timestamp}${reason ? ` - ${reason}` : ""}`);
     this.name = "PriceUnavailableError";
   }
 }
