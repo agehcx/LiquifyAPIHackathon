@@ -1,3 +1,5 @@
+import { liquifyConfig } from "@/lib/config/env";
+import { HttpLiquifyClient } from "./HttpLiquifyClient";
 import type { LiquifyClient } from "./LiquifyClient";
 import { MockLiquifyClient } from "./MockLiquifyClient";
 
@@ -7,6 +9,6 @@ import { MockLiquifyClient } from "./MockLiquifyClient";
  * same `LiquifyClient` interface).
  */
 export function createLiquifyClient(): LiquifyClient {
-  // if (process.env.LIQUIFY_API_KEY) return new HttpLiquifyClient(...);
+  if (liquifyConfig()) return new HttpLiquifyClient();
   return new MockLiquifyClient();
 }

@@ -1,3 +1,5 @@
+import { coinGeckoConfig } from "@/lib/config/env";
+import { CoinGeckoPriceOracle } from "./CoinGeckoPriceOracle";
 import type { PriceOracle } from "./PriceOracle";
 import { MockPriceOracle } from "./MockPriceOracle";
 
@@ -6,6 +8,6 @@ import { MockPriceOracle } from "./MockPriceOracle";
  * is configured (the live oracle lands here post-MVP, behind PriceOracle).
  */
 export function createPriceOracle(): PriceOracle {
-  // if (process.env.COINGECKO_API_KEY) return new CoinGeckoPriceOracle(...);
+  if (coinGeckoConfig().apiKey) return new CoinGeckoPriceOracle();
   return new MockPriceOracle();
 }

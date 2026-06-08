@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { AlertTriangle } from "lucide-react";
 import { useTaxReport } from "@/hooks/useTaxReport";
 import { ScanProgress } from "@/components/scan/ScanProgress";
 import { Card } from "@/components/primitives/Card";
@@ -26,8 +27,10 @@ export function ReportDashboard({
 
   if (isError || !data) {
     return (
-      <Card className="flex flex-col items-center gap-4 py-12 text-center">
-        <p className="text-error">{(error as Error)?.message ?? "Scan failed."}</p>
+      <Card className="flex flex-col items-center gap-4 py-16 text-center">
+        <p className="text-error font-medium">
+          {(error as Error)?.message ?? "Scan failed."}
+        </p>
         <Link href="/">
           <Button variant="secondary">Try another wallet</Button>
         </Link>
@@ -39,43 +42,57 @@ export function ReportDashboard({
   const taxableEvents = s.disposalCount + s.incomeCount;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 pb-16">
       <SummaryHeader
         address={data.address}
         taxYear={data.taxYear}
         protocols={data.protocolsDetected}
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <PnLStatCard
           label="Net Capital Gain"
           value={s.totalCapitalGainUsd}
           colorBySign
           blurred
+          accent="green"
         />
         <PnLStatCard
           label="DeFi Income"
           value={s.totalOrdinaryIncomeUsd}
           blurred
+          accent="blue"
         />
-        <PnLStatCard label="Taxable Events" plain={String(taxableEvents)} />
+        <PnLStatCard
+          label="Taxable Events"
+          plain={String(taxableEvents)}
+        />
         <PnLStatCard
           label="Protocols"
           plain={String(data.protocolsDetected.length)}
         />
       </div>
 
+      {/* Zero-basis warning */}
       {s.zeroBasisCount > 0 && (
-        <Card className="border-warning/40 bg-[rgba(245,158,11,0.12)] text-sm text-ink">
-          <span className="font-semibold text-warning">Heads up:</span>{" "}
-          {s.zeroBasisCount} disposal{s.zeroBasisCount === 1 ? "" : "s"} had no
-          recorded cost basis and were treated as zero-basis. Review these in the
-          exported report.
-        </Card>
+        <div className="flex items-start gap-3 rounded-[10px] border border-warning/40 bg-warning/8 px-4 py-3 text-sm">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
+          <span>
+            <span className="font-semibold text-warning">Heads up: </span>
+            <span className="text-ink">
+              {s.zeroBasisCount} disposal{s.zeroBasisCount === 1 ? "" : "s"}{" "}
+              had no recorded cost basis and were treated as zero-basis. Review
+              these rows in your exported report.
+            </span>
+          </span>
+        </div>
       )}
 
+      {/* Paywall CTA */}
       <LockCallout onExport={() => setPayOpen(true)} />
 
+      {/* Teaser table */}
       <BlurredTable summary={data} />
 
       {payOpen && (

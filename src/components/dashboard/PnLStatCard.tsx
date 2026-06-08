@@ -4,12 +4,19 @@ import { cn } from "@/lib/cn";
 
 interface Props {
   label: string;
-  /** USD value to render, or undefined to show a count/plain value. */
   value?: string;
   plain?: string;
   colorBySign?: boolean;
   blurred?: boolean;
+  accent?: "default" | "green" | "red" | "blue";
 }
+
+const accentBorder: Record<NonNullable<Props["accent"]>, string> = {
+  default: "border-line",
+  green: "border-l-4 border-l-brand border-line",
+  red: "border-l-4 border-l-error border-line",
+  blue: "border-l-4 border-l-info border-line",
+};
 
 export function PnLStatCard({
   label,
@@ -17,13 +24,19 @@ export function PnLStatCard({
   plain,
   colorBySign,
   blurred,
+  accent = "default",
 }: Props) {
   return (
-    <Card className="flex flex-col gap-2">
+    <Card className={cn("flex flex-col gap-3", accentBorder[accent])}>
       <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
         {label}
       </span>
-      <span className={cn("text-2xl", blurred && "blur-sm select-none")}>
+      <span
+        className={cn(
+          "text-[28px] font-bold leading-none tracking-tight",
+          blurred && "blur-sm select-none",
+        )}
+      >
         {value !== undefined ? (
           <Money value={value} colorBySign={colorBySign} />
         ) : (
