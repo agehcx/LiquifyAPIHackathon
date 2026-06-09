@@ -35,6 +35,7 @@ export async function classifyEvent(
       // The received-leg basis equals the trade value (equal-value assumption).
       const sentPrice = await oracle.getUsdPriceAt(
         event.sent.tokenAddress,
+        event.chainId,
         event.timestamp,
       );
       const tradeValueUsd = valueOfAmountUsd(event.sent, sentPrice.usd);
@@ -61,6 +62,7 @@ export async function classifyEvent(
       // FMV at receipt is BOTH ordinary income and the new lot's cost basis.
       const price = await oracle.getUsdPriceAt(
         event.received.tokenAddress,
+        event.chainId,
         event.timestamp,
       );
       const fmvUsd = valueOfAmountUsd(event.received, price.usd);

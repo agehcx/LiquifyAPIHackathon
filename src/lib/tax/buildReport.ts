@@ -1,11 +1,12 @@
 import type { ClassifiedEvent, IncomeRow, TaxReport } from "@/types/domain";
-import type { Protocol } from "@/types/enums";
+import type { CostBasisMethod, Protocol } from "@/types/enums";
 import type { LiquifyClient } from "@/lib/liquify/LiquifyClient";
 import type { PriceOracle } from "@/lib/pricing/PriceOracle";
 import { normalizeAddress } from "@/lib/report/reportKey";
 import { aggregate } from "./aggregate";
 import { classifyEvent } from "./classify";
 import { computeFifo } from "./fifo";
+import { computeHifo } from "./hifo";
 
 export interface ReportDeps {
   readonly liquify: LiquifyClient;
@@ -42,11 +43,13 @@ function toIncomeRow(ev: ClassifiedEvent): IncomeRow | null {
  */
 export async function buildReport(
   address: string,
+  chainId: number,
   taxYear: number,
+  costBasisMethod: CostBasisMethod,
   deps: ReportDeps,
 ): Promise<TaxReport> {
   const wallet = normalizeAddress(address);
-  const events = await deps.liquify.getDecodedEvents(wallet);
+  const events = await deps.liquify.getDecodedEvents(wallet, chainId);
 
   const sorted = [...events].sort((a, b) =>
     a.timestamp !== b.timestamp
@@ -59,7 +62,11 @@ export async function buildReport(
     classified.push(await classifyEvent(event, deps.oracle));
   }
 
-  const { disposals, openLots } = computeFifo(classified);
+  const { disposals, openLots } =
+    costBasisMethod === "HIFO"
+      ? computeHifo(classified)
+      : computeFifo(classified);
+      
   const allIncomeRows = classified
     .map(toIncomeRow)
     .filter((r): r is IncomeRow => r !== null);
@@ -78,7 +85,7 @@ export async function buildReport(
     address: wallet,
     taxYear,
     generatedAt: deps.now ?? Math.floor(Date.now() / 1000),
-    summary,
+    summary: { ...summary, costBasisMethod },
     gainLossRows,
     incomeRows,
     openLots,

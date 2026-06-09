@@ -1,13 +1,32 @@
 import { coinGeckoConfig } from "@/lib/config/env";
 import type { Address, UsdPrice } from "@/types/domain";
 import { PriceUnavailableError, type PriceOracle } from "./PriceOracle";
+import {
+  mainnet,
+  bsc,
+  arbitrum,
+  optimism,
+  avalanche,
+} from "wagmi/chains";
 
-/** Known Ethereum mainnet stablecoin addresses. */
-const ETH_STABLECOINS: Set<Address> = new Set([
-  "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48".toLowerCase() as Address, // USDC
-  "0xdAC17f958D2ee523a2206206994597C13D831ec7".toLowerCase() as Address, // USDT
-  "0x6B175474E89094C44Da98b954EedeAC495271d0F".toLowerCase() as Address, // DAI
-]);
+/** Known stablecoin addresses by chain. */
+const STABLECOINS: Record<number, Set<Address>> = {
+  [mainnet.id]: new Set([
+    "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48".toLowerCase() as Address, // USDC
+    "0xdAC17f958D2ee523a2206206994597C13D831ec7".toLowerCase() as Address, // USDT
+    "0x6B175474E89094C44Da98b954EedeAC495271d0F".toLowerCase() as Address, // DAI
+  ]),
+  // TODO: Add stablecoin addresses for other chains
+};
+
+const CHAIN_ID_TO_ASSET_PLATFORM: Record<number, string> = {
+    [mainnet.id]: "ethereum",
+    [bsc.id]: "binance-smart-chain",
+    [arbitrum.id]: "arbitrum-one",
+    [optimism.id]: "optimistic-ethereum",
+    [avalanche.id]: "avalanche",
+};
+
 
 /** Convert a unix-seconds timestamp to a UTC calendar date (YYYY-MM-DD). */
 function toUtcDate(timestamp: number): string {
@@ -28,11 +47,20 @@ export class CoinGeckoPriceOracle implements PriceOracle {
   }
 
   isStablecoin(tokenAddress: Address): boolean {
-    return ETH_STABLECOINS.has(tokenAddress.toLowerCase() as Address);
+    // For simplicity, we check across all supported chains.
+    // This might not be perfectly accurate if a stablecoin address on one chain
+    // is a regular token on another.
+    for (const chainId in STABLECOINS) {
+        if(STABLECOINS[chainId].has(tokenAddress.toLowerCase() as Address)) {
+            return true;
+        }
+    }
+    return false;
   }
 
   async getUsdPriceAt(
     tokenAddress: Address,
+    chainId: number,
     timestamp: number,
   ): Promise<UsdPrice> {
     const token = tokenAddress.toLowerCase() as Address;
@@ -43,11 +71,16 @@ export class CoinGeckoPriceOracle implements PriceOracle {
     }
 
     const utcDate = toUtcDate(timestamp);
-    const cacheKey = `${token}:${utcDate}`;
+    const cacheKey = `${token}:${utcDate}:${chainId}`;
 
     // 2. Check cache
     if (this.priceCache.has(cacheKey)) {
       return this.priceCache.get(cacheKey)!;
+    }
+
+    const assetPlatform = CHAIN_ID_TO_ASSET_PLATFORM[chainId];
+    if (!assetPlatform) {
+        throw new PriceUnavailableError(tokenAddress, chainId, timestamp, "Unsupported chain.");
     }
 
     // 3. Fetch from CoinGecko
@@ -59,18 +92,19 @@ export class CoinGeckoPriceOracle implements PriceOracle {
     const to = timestamp + 86400;
 
     const url = new URL(
-      `https://api.coingecko.com/api/v3/coins/ethereum/contract/${token}/market_chart/range`,
+      `https://api.coingecko.com/api/v3/coins/${assetPlatform}/contract/${token}/market_chart/range`,
     );
     url.searchParams.set("vs_currency", "usd");
-    url.searchParams.set("from_timestamp", from.toString());
-    url.searchParams.set("to_timestamp", to.toString());
+    url.searchParams.set("from", from.toString());
+    url.searchParams.set("to", to.toString());
 
     const headers: HeadersInit = {
       "Content-Type": "application/json",
     };
     if (this.apiKey) {
       // Use for CoinGecko Pro API
-      url.searchParams.set("x_cg_pro_api_key", this.apiKey);
+      url.host = "pro-api.coingecko.com";
+      headers["x-cg-pro-api-key"] = this.apiKey;
     }
 
     const response = await fetch(url.toString(), { headers });
@@ -79,6 +113,7 @@ export class CoinGeckoPriceOracle implements PriceOracle {
       if (response.status === 429) {
         throw new PriceUnavailableError(
           tokenAddress,
+          chainId,
           timestamp,
           "CoinGecko rate limit exceeded.",
         );
@@ -86,6 +121,7 @@ export class CoinGeckoPriceOracle implements PriceOracle {
       const errorBody = await response.text();
       throw new PriceUnavailableError(
         tokenAddress,
+        chainId,
         timestamp,
         `CoinGecko API error: ${response.status} ${response.statusText} - ${errorBody}`,
       );
@@ -100,6 +136,7 @@ export class CoinGeckoPriceOracle implements PriceOracle {
     ) {
       throw new PriceUnavailableError(
         tokenAddress,
+        chainId,
         timestamp,
         "No price data found.",
       );

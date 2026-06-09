@@ -21,9 +21,10 @@ export class HttpLiquifyClient implements LiquifyClient {
 
   async getDecodedEvents(
     address: Address,
+    chainId: number,
     opts?: GetEventsOptions,
   ): Promise<DecodedEvent[]> {
-    const url = new URL(`${this.apiUrl}/api/v1/addresses/${address}/events`);
+    const url = new URL(`${this.apiUrl}/api/v1/chains/${chainId}/addresses/${address}/events`);
 
     if (opts?.fromTs) {
       url.searchParams.set("fromTs", opts.fromTs.toString());

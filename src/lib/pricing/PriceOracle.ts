@@ -4,10 +4,11 @@ import type { Address, UsdPrice } from "@/types/domain";
 export class PriceUnavailableError extends Error {
   constructor(
     readonly tokenAddress: Address,
+    readonly chainId: number,
     readonly timestamp: number,
     readonly reason?: string,
   ) {
-    super(`No USD price for ${tokenAddress} at ${timestamp}${reason ? ` - ${reason}` : ""}`);
+    super(`No USD price for ${tokenAddress} on chain ${chainId} at ${timestamp}${reason ? ` - ${reason}` : ""}`);
     this.name = "PriceUnavailableError";
   }
 }
@@ -18,7 +19,7 @@ export class PriceUnavailableError extends Error {
  * this interface post-MVP.
  */
 export interface PriceOracle {
-  getUsdPriceAt(tokenAddress: Address, timestamp: number): Promise<UsdPrice>;
+  getUsdPriceAt(tokenAddress: Address, chainId: number, timestamp: number): Promise<UsdPrice>;
   /**
    * Whether a token is a USD-pegged stablecoin. Stablecoins are treated as
    * cash: spending one is not a taxable disposal and receiving one creates no

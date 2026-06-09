@@ -26,7 +26,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     throw err;
   }
 
-  const report = await getOrBuildReport(params.address, params.taxYear);
+  const report = await getOrBuildReport(params.address, params.chainId, params.taxYear, params.costBasisMethod);
 
   const body: FreeSummaryResponse = {
     address: report.address,

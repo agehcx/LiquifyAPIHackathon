@@ -12,11 +12,13 @@ export class MockLiquifyClient implements LiquifyClient {
 
   async getDecodedEvents(
     _address: Address,
+    chainId: number,
     opts: GetEventsOptions = {},
   ): Promise<DecodedEvent[]> {
     const { fromTs, toTs } = opts;
     return this.events.filter(
       (e) =>
+        e.chainId === chainId &&
         (fromTs === undefined || e.timestamp >= fromTs) &&
         (toTs === undefined || e.timestamp <= toTs),
     );

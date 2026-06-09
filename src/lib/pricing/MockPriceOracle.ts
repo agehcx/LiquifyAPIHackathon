@@ -32,6 +32,7 @@ export class MockPriceOracle implements PriceOracle {
 
   async getUsdPriceAt(
     tokenAddress: Address,
+    chainId: number,
     timestamp: number,
   ): Promise<UsdPrice> {
     const token = tokenAddress.toLowerCase();
@@ -40,7 +41,7 @@ export class MockPriceOracle implements PriceOracle {
     }
     const usd = this.prices[token]?.[utcDate(timestamp)];
     if (usd === undefined) {
-      throw new PriceUnavailableError(tokenAddress, timestamp);
+      throw new PriceUnavailableError(tokenAddress, chainId, timestamp);
     }
     return { usd, source: "MOCK", asOf: timestamp };
   }

@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getOrBuildReport } from "@/lib/report/getReport";
 import { toCsv } from "@/lib/export/csvExporter";
+import { toPdf } from "@/lib/export/pdfExporter";
 import { parseReportQuery } from "@/lib/api/validation";
 import { isPaymentDemoMode, x402ServerConfig } from "@/lib/config/env";
 
@@ -28,7 +29,20 @@ const handler: RouteHandler = async (request) => {
     throw err;
   }
 
-  const report = await getOrBuildReport(params.address, params.taxYear);
+  const report = await getOrBuildReport(params.address, params.chainId, params.taxYear, params.costBasisMethod);
+  
+  if (params.format === "pdf") {
+    const pdf = await toPdf(report);
+    const filename = `defi-taxgen-${params.address.slice(0, 10)}-${params.taxYear}.pdf`;
+    return new NextResponse(pdf, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+      },
+    });
+  }
+
   const csv = toCsv(report);
   const filename = `defi-taxgen-${params.address.slice(0, 10)}-${params.taxYear}.csv`;
 
@@ -60,7 +74,7 @@ async function resolveHandler(): Promise<RouteHandler> {
     {
       price: cfg.priceUsd,
       network: cfg.network,
-      config: { description: "Full DeFi Tax Report Export (CSV)" },
+      config: { description: "Full DeFi Tax Report Export (CSV/PDF)" },
     },
     cfg.facilitatorUrl
       ? { url: cfg.facilitatorUrl as `${string}://${string}` }

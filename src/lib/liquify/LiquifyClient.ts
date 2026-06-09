@@ -19,6 +19,7 @@ export interface LiquifyClient {
    */
   getDecodedEvents(
     address: Address,
+    chainId: number,
     opts?: GetEventsOptions,
   ): Promise<DecodedEvent[]>;
 }

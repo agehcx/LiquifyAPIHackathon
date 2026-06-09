@@ -1,5 +1,5 @@
 import { createConfig, http } from "wagmi";
-import { baseSepolia, mainnet } from "wagmi/chains";
+import { baseSepolia, mainnet, bsc, arbitrum, optimism, avalanche } from "wagmi/chains";
 import { injected } from "wagmi/connectors";
 
 /**
@@ -8,12 +8,16 @@ import { injected } from "wagmi/connectors";
  * (MetaMask / Coinbase Wallet) is the connector for the demo.
  */
 export const wagmiConfig = createConfig({
-  chains: [mainnet, baseSepolia],
+  chains: [mainnet, baseSepolia, bsc, arbitrum, optimism, avalanche],
   connectors: [injected()],
   ssr: true,
   transports: {
     [mainnet.id]: http(),
     [baseSepolia.id]: http(),
+    [bsc.id]: http(),
+    [arbitrum.id]: http(),
+    [optimism.id]: http(),
+    [avalanche.id]: http(),
   },
 });
 

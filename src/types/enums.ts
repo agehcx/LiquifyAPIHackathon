@@ -11,7 +11,7 @@ export type TaxTreatment =
   | "NON_TAXABLE";
 
 /** Cost-basis accounting method. MVP ships FIFO only; union is extensible. */
-export type CostBasisMethod = "FIFO";
+export type CostBasisMethod = "FIFO" | "HIFO";
 
 /** Capital-gains holding period (US: long-term if held > 365 days). */
 export type HoldingPeriod = "SHORT_TERM" | "LONG_TERM";
