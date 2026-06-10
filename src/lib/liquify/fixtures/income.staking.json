@@ -27,12 +27,12 @@
     "protocol": "AIRDROP",
     "eventName": "Claimed",
     "wallet": "0x1111111111111111111111111111111111111111",
-    "received": {
+    "received": [{
       "tokenAddress": "0xf000000000000000000000000000000000000000",
       "symbol": "FOO",
       "decimals": 18,
       "raw": "100000000000000000000"
-    },
+    }],
     "raw": { "note": "airdrop 100 FOO @ $0.50 (2025-10-01)" }
   }
 ]

@@ -62,7 +62,11 @@ export function useExportPayment(address?: string, taxYear?: number) {
       }
 
       setPhase("submitting");
-      const res = await doFetch(url);
+      const res = await doFetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address, taxYear }),
+      });
       if (!res.ok) throw new Error(`Export failed (${res.status})`);
 
       setPhase("downloading");

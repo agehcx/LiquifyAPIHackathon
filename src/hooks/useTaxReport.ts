@@ -7,9 +7,16 @@ async function fetchSummary(
   address: string,
   taxYear: number,
 ): Promise<FreeSummaryResponse> {
-  const res = await fetch(
-    `/api/summary?address=${address}&taxYear=${taxYear}`,
-  );
+  const res = await fetch("/api/summary", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      address,
+      taxYear,
+    }),
+  });
   if (!res.ok) {
     const body = (await res.json().catch(() => null)) as { error?: string } | null;
     throw new Error(body?.error ?? `Scan failed (${res.status})`);
