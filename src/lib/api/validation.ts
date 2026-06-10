@@ -9,18 +9,18 @@ export const reportRequestSchema = z.object({
   chainId: z.coerce.number().int().default(mainnet.id),
   taxYear: z.coerce.number().int().min(2015).max(2030),
   format: z.enum(["csv", "pdf"]).optional().default("csv"),
-  costBasisMethod: z.enum(["FIFO", "HIFO"]).optional().default("FIFO"),
+  costBasisMethod: z.enum(["FIFO", "HIFO", "SPECIFIC_ID"]).optional().default("FIFO"),
 });
 
 export type ReportRequestInput = z.infer<typeof reportRequestSchema>;
 
 /** Parse report params from a URL's query string. */
-export function parseReportQuery(url: URL): ReportRequestInput {
+export function parseReportQuery(url: URL, body: any = {}): ReportRequestInput {
   return reportRequestSchema.parse({
     address: url.searchParams.get("address"),
     chainId: url.searchParams.get("chainId"),
     taxYear: url.searchParams.get("taxYear"),
     format: url.searchParams.get("format") ?? "csv",
-    costBasisMethod: url.searchParams.get("costBasisMethod") ?? "FIFO",
+    costBasisMethod: body.costBasisMethod ?? url.searchParams.get("costBasisMethod") ?? "FIFO",
   });
 }

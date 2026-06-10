@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { FreeSummaryResponse } from "@/types/api";
 import { getOrBuildReport } from "@/lib/report/getReport";
 import { parseReportQuery } from "@/lib/api/validation";
+import type { LotSelection } from "@/lib/tax/specificId";
 
 export const dynamic = "force-dynamic";
 
@@ -12,10 +13,13 @@ export const dynamic = "force-dynamic";
  * bypassed by reading the network response — those ship from /api/export after
  * the x402 payment settles.
  */
-export async function GET(request: Request): Promise<NextResponse> {
+export async function POST(request: Request): Promise<NextResponse> {
   let params;
+  let lotSelections: LotSelection | undefined;
   try {
-    params = parseReportQuery(new URL(request.url));
+    const body = await request.json();
+    params = parseReportQuery(new URL(request.url), body);
+    lotSelections = body.lotSelections;
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(
@@ -26,7 +30,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     throw err;
   }
 
-  const report = await getOrBuildReport(params.address, params.chainId, params.taxYear, params.costBasisMethod);
+  const report = await getOrBuildReport(params.address, params.chainId, params.taxYear, params.costBasisMethod, lotSelections);
 
   const body: FreeSummaryResponse = {
     address: report.address,

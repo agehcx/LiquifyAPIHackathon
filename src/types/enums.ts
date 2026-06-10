@@ -2,7 +2,14 @@
 // and zero runtime cost. All are extensible for post-MVP event types/methods.
 
 /** Taxable event kinds covered by the MVP. */
-export type EventKind = "SWAP" | "STAKING_INCOME" | "AIRDROP_INCOME";
+export type EventKind =
+  | "SWAP"
+  | "STAKING_INCOME"
+  | "AIRDROP_INCOME"
+  | "LP_ADD"
+  | "LP_REMOVE"
+  | "LENDING_DEPOSIT"
+  | "LENDING_WITHDRAWAL";
 
 /** How an event is treated for tax purposes. */
 export type TaxTreatment =
@@ -11,7 +18,7 @@ export type TaxTreatment =
   | "NON_TAXABLE";
 
 /** Cost-basis accounting method. MVP ships FIFO only; union is extensible. */
-export type CostBasisMethod = "FIFO" | "HIFO";
+export type CostBasisMethod = "FIFO" | "HIFO" | "SPECIFIC_ID";
 
 /** Capital-gains holding period (US: long-term if held > 365 days). */
 export type HoldingPeriod = "SHORT_TERM" | "LONG_TERM";
@@ -21,4 +28,6 @@ export type Protocol =
   | "UNISWAP_V2"
   | "UNISWAP_V3"
   | "STAKING"
-  | "AIRDROP";
+  | "AIRDROP"
+  | "AAVE"
+  | "COMPOUND";

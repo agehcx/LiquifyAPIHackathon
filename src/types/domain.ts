@@ -50,9 +50,9 @@ export interface DecodedEvent {
   readonly eventName: string; // "Swap", "RewardPaid", "Claimed", ...
   readonly wallet: Address;
   /** Token leaving the wallet (swaps). */
-  readonly sent?: TokenAmount;
+  readonly sent?: TokenAmount[];
   /** Token entering the wallet (swaps + income). */
-  readonly received?: TokenAmount;
+  readonly received?: TokenAmount[];
   /** Original decoded params, retained for audit/debug. */
   readonly raw: Record<string, unknown>;
 }
@@ -65,9 +65,9 @@ export interface ClassifiedEvent {
   readonly treatment: TaxTreatment;
   readonly timestamp: number;
   /** Disposal side (capital gain): the asset given up + its USD proceeds. */
-  readonly disposal?: { amount: TokenAmount; proceedsUsd: string };
+  readonly disposal?: { amount: TokenAmount; proceedsUsd: string }[];
   /** Acquisition side: the asset received becomes a new cost-basis lot. */
-  readonly acquisition?: { amount: TokenAmount; costBasisUsd: string };
+  readonly acquisition?: { amount: TokenAmount; costBasisUsd: string }[];
   /** Ordinary income recognized (FMV of received asset), when applicable. */
   readonly incomeUsd?: string;
 }

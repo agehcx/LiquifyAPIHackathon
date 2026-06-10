@@ -5,6 +5,7 @@ import { toCsv } from "@/lib/export/csvExporter";
 import { toPdf } from "@/lib/export/pdfExporter";
 import { parseReportQuery } from "@/lib/api/validation";
 import { isPaymentDemoMode, x402ServerConfig } from "@/lib/config/env";
+import type { LotSelection } from "@/lib/tax/specificId";
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +18,11 @@ type RouteHandler = (request: NextRequest) => Promise<NextResponse>;
  */
 const handler: RouteHandler = async (request) => {
   let params;
+  let lotSelections: LotSelection | undefined;
   try {
-    params = parseReportQuery(new URL(request.url));
+    const body = await request.json();
+    params = parseReportQuery(new URL(request.url), body);
+    lotSelections = body.lotSelections;
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(
@@ -29,7 +33,7 @@ const handler: RouteHandler = async (request) => {
     throw err;
   }
 
-  const report = await getOrBuildReport(params.address, params.chainId, params.taxYear, params.costBasisMethod);
+  const report = await getOrBuildReport(params.address, params.chainId, params.taxYear, params.costBasisMethod, lotSelections);
   
   if (params.format === "pdf") {
     const pdf = await toPdf(report);
@@ -83,7 +87,7 @@ async function resolveHandler(): Promise<RouteHandler> {
   return resolved;
 }
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   const h = await resolveHandler();
   return h(request);
 }

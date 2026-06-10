@@ -5,6 +5,7 @@ import { buildReport } from "@/lib/tax/buildReport";
 import { getCachedReport, setCachedReport } from "./reportCache";
 import { reportKey } from "./reportKey";
 import type { CostBasisMethod } from "@/types/enums";
+import type { LotSelection } from "@/lib/tax/specificId";
 
 /**
  * Returns the report for (address, taxYear), building it from the active
@@ -16,6 +17,7 @@ export async function getOrBuildReport(
   chainId: number,
   taxYear: number,
   costBasisMethod: CostBasisMethod,
+  lotSelections?: LotSelection,
 ): Promise<TaxReport> {
   const key = reportKey(address, chainId, taxYear, costBasisMethod);
   const cached = getCachedReport(key);
@@ -24,7 +26,7 @@ export async function getOrBuildReport(
   const report = await buildReport(address, chainId, taxYear, costBasisMethod, {
     liquify: createLiquifyClient(),
     oracle: createPriceOracle(),
-  });
+  }, lotSelections);
   setCachedReport(key, report);
   return report;
 }

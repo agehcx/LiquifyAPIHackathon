@@ -23,11 +23,11 @@ export const decodedEventSchema = z.object({
   blockNumber: z.number().int().nonnegative(),
   timestamp: z.number().int().positive(),
   chainId: z.number().int().positive(),
-  protocol: z.enum(["UNISWAP_V2", "UNISWAP_V3", "STAKING", "AIRDROP"]),
+  protocol: z.enum(["UNISWAP_V2", "UNISWAP_V3", "STAKING", "AIRDROP", "AAVE", "COMPOUND"]),
   eventName: z.string().min(1),
   wallet: addressSchema,
-  sent: tokenAmountSchema.optional(),
-  received: tokenAmountSchema.optional(),
+  sent: z.array(tokenAmountSchema).optional(),
+  received: z.array(tokenAmountSchema).optional(),
   raw: z.record(z.string(), z.unknown()),
 });
 

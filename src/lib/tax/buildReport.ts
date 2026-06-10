@@ -7,6 +7,7 @@ import { aggregate } from "./aggregate";
 import { classifyEvent } from "./classify";
 import { computeFifo } from "./fifo";
 import { computeHifo } from "./hifo";
+import { computeSpecificId, type LotSelection } from "./specificId";
 
 export interface ReportDeps {
   readonly liquify: LiquifyClient;
@@ -20,15 +21,19 @@ const PROTOCOL_LABELS: Record<Protocol, string> = {
   UNISWAP_V3: "Uniswap V3",
   STAKING: "Staking",
   AIRDROP: "Airdrop",
+  AAVE: "Aave",
+  COMPOUND: "Compound",
 };
 
 function toIncomeRow(ev: ClassifiedEvent): IncomeRow | null {
-  if (ev.incomeUsd === undefined || !ev.acquisition) return null;
+  if (ev.incomeUsd === undefined || !ev.acquisition || ev.acquisition.length === 0) return null;
+  // Income events are expected to have only one acquisition
+  const acquisition = ev.acquisition[0];
   return {
     eventId: ev.source.id,
-    tokenAddress: ev.acquisition.amount.tokenAddress,
-    symbol: ev.acquisition.amount.symbol,
-    decimals: ev.acquisition.amount.decimals,
+    tokenAddress: acquisition.amount.tokenAddress,
+    symbol: acquisition.amount.symbol,
+    decimals: acquisition.amount.decimals,
     receivedAt: ev.timestamp,
     kind: ev.kind,
     amountUsd: ev.incomeUsd,
@@ -47,6 +52,7 @@ export async function buildReport(
   taxYear: number,
   costBasisMethod: CostBasisMethod,
   deps: ReportDeps,
+  lotSelections?: LotSelection,
 ): Promise<TaxReport> {
   const wallet = normalizeAddress(address);
   const events = await deps.liquify.getDecodedEvents(wallet, chainId);
@@ -65,6 +71,8 @@ export async function buildReport(
   const { disposals, openLots } =
     costBasisMethod === "HIFO"
       ? computeHifo(classified)
+      : costBasisMethod === "SPECIFIC_ID" && lotSelections
+      ? computeSpecificId(classified, lotSelections)
       : computeFifo(classified);
       
   const allIncomeRows = classified

@@ -37,6 +37,8 @@
 - [x] Verified end-to-end: demo CSV download (200) and gated 402 payment challenge
 
 ### Post-MVP backlog
-- [ ] Real Liquify + CoinGecko clients (behind existing interfaces)
-- [ ] PDF export; BNB/ARB/OP/AVAX; HIFO & Specific-ID; LP + lending event types
+- [x] Real Liquify + CoinGecko clients (behind existing interfaces)
+- [x] PDF export; BNB/ARB/OP/AVAX; HIFO; LP + lending event types
+- [x] Specific-ID (backend implemented)
 - [ ] Wire real x402 facilitator/payTo/USDC values for live-payment demo
+- [ ] Postgres/Prisma persistence layer

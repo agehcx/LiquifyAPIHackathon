@@ -41,85 +41,89 @@ export function computeHifo(events: ClassifiedEvent[]): HifoResult {
   for (const ev of events) {
     // ── Disposal (capital gain on the sent asset) ──
     if (ev.disposal) {
-      const { amount, proceedsUsd } = ev.disposal;
-      const token = amount.tokenAddress;
-      const totalQty = amount.raw;
-      let remaining = amount.raw;
-      const queue = queues.get(token) ?? [];
+      for (const disposal of ev.disposal) {
+        const { amount, proceedsUsd } = disposal;
+        const token = amount.tokenAddress;
+        const totalQty = amount.raw;
+        let remaining = amount.raw;
+        const queue = queues.get(token) ?? [];
 
-      // Sort lots by cost basis per unit, highest first
-      queue.sort((a, b) => parseFloat(b.costBasisUsdPerUnit) - parseFloat(a.costBasisUsdPerUnit));
+        // Sort lots by cost basis per unit, highest first
+        queue.sort((a, b) => parseFloat(b.costBasisUsdPerUnit) - parseFloat(a.costBasisUsdPerUnit));
 
-      while (gtZeroRaw(remaining)) {
-        if (queue.length === 0) {
-          // No basis on record → zero-basis disposal, flagged for review.
-          const proceeds = proceedsSlice(proceedsUsd, remaining, totalQty);
+        while (gtZeroRaw(remaining)) {
+          if (queue.length === 0) {
+            // No basis on record → zero-basis disposal, flagged for review.
+            const proceeds = proceedsSlice(proceedsUsd, remaining, totalQty);
+            disposals.push({
+              eventId: ev.source.id,
+              tokenAddress: token,
+              symbol: amount.symbol,
+              decimals: amount.decimals,
+              quantityRaw: remaining,
+              acquiredAt: 0,
+              disposedAt: ev.timestamp,
+              proceedsUsd: proceeds,
+              costBasisUsd: "0",
+              gainLossUsd: proceeds,
+              holdingPeriod: "SHORT_TERM",
+              zeroBasis: true,
+            });
+            remaining = "0";
+            break;
+          }
+
+          const lot = queue[0];
+          const matched = minRaw(remaining, lot.quantityRaw);
+          const proceeds = proceedsSlice(proceedsUsd, matched, totalQty);
+          const basis = basisForQty(lot.costBasisUsdPerUnit, matched);
+
           disposals.push({
             eventId: ev.source.id,
             tokenAddress: token,
             symbol: amount.symbol,
             decimals: amount.decimals,
-            quantityRaw: remaining,
-            acquiredAt: 0,
+            quantityRaw: matched,
+            acquiredAt: lot.acquiredAt,
             disposedAt: ev.timestamp,
             proceedsUsd: proceeds,
-            costBasisUsd: "0",
-            gainLossUsd: proceeds,
-            holdingPeriod: "SHORT_TERM",
-            zeroBasis: true,
+            costBasisUsd: basis,
+            gainLossUsd: subUsd(proceeds, basis),
+            holdingPeriod: holdingPeriod(lot.acquiredAt, ev.timestamp),
+            zeroBasis: false,
           });
-          remaining = "0";
-          break;
+
+          const lotRemaining = subRaw(lot.quantityRaw, matched);
+          remaining = subRaw(remaining, matched);
+          if (isZeroRaw(lotRemaining)) {
+            queue.shift();
+          } else {
+            queue[0] = { ...lot, quantityRaw: lotRemaining };
+          }
         }
 
-        const lot = queue[0];
-        const matched = minRaw(remaining, lot.quantityRaw);
-        const proceeds = proceedsSlice(proceedsUsd, matched, totalQty);
-        const basis = basisForQty(lot.costBasisUsdPerUnit, matched);
-
-        disposals.push({
-          eventId: ev.source.id,
-          tokenAddress: token,
-          symbol: amount.symbol,
-          decimals: amount.decimals,
-          quantityRaw: matched,
-          acquiredAt: lot.acquiredAt,
-          disposedAt: ev.timestamp,
-          proceedsUsd: proceeds,
-          costBasisUsd: basis,
-          gainLossUsd: subUsd(proceeds, basis),
-          holdingPeriod: holdingPeriod(lot.acquiredAt, ev.timestamp),
-          zeroBasis: false,
-        });
-
-        const lotRemaining = subRaw(lot.quantityRaw, matched);
-        remaining = subRaw(remaining, matched);
-        if (isZeroRaw(lotRemaining)) {
-          queue.shift();
-        } else {
-          queue[0] = { ...lot, quantityRaw: lotRemaining };
-        }
+        queues.set(token, queue);
       }
-
-      queues.set(token, queue);
     }
 
     // ── Acquisition (swap output OR income) → new lot at the back ──
     if (ev.acquisition) {
-      const { amount, costBasisUsd } = ev.acquisition;
-      const token = amount.tokenAddress;
-      const queue = queues.get(token) ?? [];
-      queue.push({
-        id: `${ev.source.id}:${token}`,
-        tokenAddress: token,
-        symbol: amount.symbol,
-        acquiredAt: ev.timestamp,
-        originEventId: ev.source.id,
-        quantityRaw: amount.raw,
-        originalQuantityRaw: amount.raw,
-        costBasisUsdPerUnit: unitBasisUsd(costBasisUsd, amount.raw),
-      });
-      queues.set(token, queue);
+      for (const acquisition of ev.acquisition) {
+        const { amount, costBasisUsd } = acquisition;
+        const token = amount.tokenAddress;
+        const queue = queues.get(token) ?? [];
+        queue.push({
+          id: `${ev.source.id}:${token}`,
+          tokenAddress: token,
+          symbol: amount.symbol,
+          acquiredAt: ev.timestamp,
+          originEventId: ev.source.id,
+          quantityRaw: amount.raw,
+          originalQuantityRaw: amount.raw,
+          costBasisUsdPerUnit: unitBasisUsd(costBasisUsd, amount.raw),
+        });
+        queues.set(token, queue);
+      }
     }
   }
 
