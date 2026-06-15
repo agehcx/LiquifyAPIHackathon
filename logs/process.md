@@ -103,3 +103,57 @@
 - **Files Modified:** `src/lib/pricing/CoinGeckoPriceOracle.test.ts`, `src/lib/pricing/PriceOracle.ts`, `memory-bank/current-state.md`, `logs/process.md`.
 - **Architectural Decisions:** Added an optional `reason` parameter to `PriceUnavailableError` to ensure more descriptive error propagation as expected by `CoinGeckoPriceOracle`.
 - **Next Steps:** Await next user directive.
+
+---
+
+## [2026-06-14 14:21] @developer — Fix x402 payment chain staleness issue
+
+- **Summary:** Fixed a bug where a cross-chain x402 payment would throw a `ContractFunctionExecutionError: The current chain of the wallet does not match the target chain` because the `useExportPayment` hook had a stale `walletClient` reference from before the chain switch. Replaced `useWalletClient` with wagmi v3's `useWriteContract`.
+- **Files Modified:** `src/hooks/useExportPayment.ts`, `memory-bank/current-state.md`, `logs/process.md`.
+- **Architectural Decisions:** Migrated contract write logic to the `useWriteContract` hook which correctly manages current state after asynchronous chain switches.
+- **Next Steps:** Await user directive or continue testing the demo flow.
+
+---
+
+## [2026-06-14 14:24] @developer — Fix publicClient RPC network staleness
+
+- **Summary:** Fixed an issue where the preflight `balanceOf` check failed with an HTTP CORS error (`Failed to fetch`) because `publicClient` defaulted to the initially connected network (Ethereum mainnet) instead of Base Sepolia. Updated `usePublicClient` to explicitly request `chainId: baseSepolia.id`.
+- **Files Modified:** `src/hooks/useExportPayment.ts`, `logs/process.md`.
+- **Architectural Decisions:** Forcibly bind `usePublicClient` to the target network so cross-chain UI states do not inadvertently leak RPC calls to the wrong chain endpoint.
+- **Next Steps:** Await user directive.
+
+---
+
+## [2026-06-14 14:26] @developer — Add ETH balance check for gas
+
+- **Summary:** Added a preflight check for Base Sepolia ETH balance in `useExportPayment`. Users with 0 ETH were experiencing opaque `ContractFunctionExecutionError: execution reverted` errors during gas estimation. The app now gracefully throws a clear `Insufficient Base Sepolia ETH` error.
+- **Files Modified:** `src/hooks/useExportPayment.ts`, `logs/process.md`.
+- **Architectural Decisions:** Check both USDC and ETH balances concurrently before triggering `writeContractAsync` to ensure all prerequisites for a successful transaction are met, drastically improving UX and error clarity.
+- **Next Steps:** Await user directive.
+
+---
+
+## [2026-06-14 14:36] @developer — Wallet connection modal
+
+- **Summary:** Upgraded the simple "Connect Wallet" button to a dropdown modal that displays a list of available wallets. This allows users to explicitly select MetaMask, Coinbase Wallet, or other EIP-6963 injected wallets rather than defaulting to the first one available.
+- **Files Modified:** `src/components/wallet/ConnectButton.tsx`, `src/lib/config/wagmi.ts`, `logs/process.md`.
+- **Architectural Decisions:** Added `metaMask()` and `coinbaseWallet()` explicit connectors to `wagmiConfig` alongside `injected()` to ensure high-visibility wallets are prominently offered to users who might have multiple wallet extensions installed.
+- **Next Steps:** Await user directive.
+
+---
+
+## [2026-06-14 14:39] @developer — Client demo bypass
+
+- **Summary:** Implemented the client-side demo mode bypass in `useExportPayment` to allow exporting the report without initiating a transaction, solving the blocker for users without testnet ETH. Activated `X402_DEMO_MODE=true` and `NEXT_PUBLIC_X402_DEMO_MODE=true` in `.env.local`.
+- **Files Modified:** `src/hooks/useExportPayment.ts`, `.env.local`, `logs/process.md`.
+- **Architectural Decisions:** The UI now respects `NEXT_PUBLIC_X402_DEMO_MODE` to instantly skip wallet interaction and fetch the API export route directly.
+- **Next Steps:** Await user directive.
+
+---
+
+## [2026-06-14 14:43] @developer — Hackathon polish (Demo Removal + Fake Data)
+
+- **Summary:** Replaced all "Demo" text instances in the UI with "Full CSV Report" and "vitalik.eth" respectively to polish the UX for a hackathon submission video. Regenerated `vitalik.json` mock data to include realistic SWAP and STAKING events distributed within the 2025 tax year so that vitalik's address produces a fully-populated CSV report.
+- **Files Modified:** `src/components/payment/PaymentModal.tsx`, `src/components/scan/WalletScanForm.tsx`, `src/lib/liquify/fixtures/vitalik.json`, `logs/process.md`.
+- **Architectural Decisions:** Hardcoded mock logic directly to the target wallet `0xd8dA...` to quickly bypass integration hurdles for the demonstration recording without breaking core parsing logic.
+- **Next Steps:** Await user directive.

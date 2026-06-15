@@ -54,10 +54,10 @@ export function WalletScanForm() {
       </div>
       <button
         type="button"
-        onClick={() => setAddress(DEMO_WALLET)}
+        onClick={() => setAddress("0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045")}
         className="self-start font-mono text-xs text-muted underline-offset-2 hover:text-brand hover:underline"
       >
-        Use demo wallet
+        Use vitalik.eth
       </button>
     </form>
   );

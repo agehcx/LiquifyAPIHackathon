@@ -48,10 +48,10 @@ function toIncomeRow(ev: ClassifiedEvent): IncomeRow | null {
  */
 export async function buildReport(
   address: string,
-  chainId: number,
   taxYear: number,
-  costBasisMethod: CostBasisMethod,
   deps: ReportDeps,
+  chainId: number = 1,
+  costBasisMethod: CostBasisMethod = "FIFO",
   lotSelections?: LotSelection,
 ): Promise<TaxReport> {
   const wallet = normalizeAddress(address);

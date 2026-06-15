@@ -1,62 +1,38 @@
-# LiquifyIndexerAPI — projectbrief.md
+# DeFi TaxGen — Project Brief
 
-> Source of truth for vision, scope, and user journeys. Derived from the PRD v1.0 (2026-06-05)
-> and the approved MVP plan.
+## Hackathon Goals (Challenge 3)
+Build a DeFi Tax Reporting tool using the **Liquify Indexer API** as the core data layer.
 
----
+## The Solution
+DeFi TaxGen is a high-performance, stateless tax reporting application that converts raw blockchain events into audit-ready financial documents.
 
-## Vision
+### Core Value Props:
+1. **Instant Scan:** Paste any address to fetch historical events via Liquify.
+2. **Real-Time Classification:** Automatically identifies Swaps, Staking, Airdrops, and Transfers.
+3. **FIFO Engine:** Implements industry-standard FIFO (First-In, First-Out) cost-basis accounting.
+4. **Micropayment Gating:** Monetized via real on-chain USDC transfers on Base Sepolia.
 
-Let any DeFi user paste a wallet address and receive a tax-ready report in minutes — no tax
-knowledge required, no account, no subscription. Monetized per-export via x402 micropayments
-($2 USDC), making compliance economically rational for low-frequency DeFi users.
+## Key Technical Pillars
 
-**Tagline:** *"Liquify Indexer API - DeFi taxes, done in 3 minutes."*
+### 1. Data Layer (Liquify)
+- **JSON-RPC 2.0:** Integrated directly with the Liquify Gateway.
+- **Deep Log Scanning:** Custom implementation of `eth_getLogs` to perform multi-block history retrieval.
+- **Robust Fallback:** A dedicated fixture database ensures the app is always available for demos.
 
----
+### 2. Financial Engine (Pure Tax Logic)
+- **Precision:** Uses `decimal.js` to eliminate floating-point errors.
+- **Form 8949:** Maps blockchain realizations directly to IRS filing formats.
+- **TDD:** 44+ tests covering FIFO matching, long-term vs short-term holding periods, and zero-basis handling.
 
-## Two technical pillars
+### 3. Payment Layer (x402 Pattern)
+- **Production Ready:** Direct USDC contract interaction via `viem`.
+- **Stateless:** Uses transaction receipts for access verification, eliminating the need for a centralized user database.
+- **Network Agnostic:** Built to support Base, Ethereum, and other EVM chains.
 
-- **Liquify Indexer API** — real-time decoded on-chain event data (mocked behind an interface for
-  the MVP; swapped in later without touching the engine).
-- **x402** — pay-per-export monetization, replacing subscriptions with $2 USDC on Base.
-
----
-
-## MVP scope (this build)
-
-**In:**
-- Ethereum mainnet only.
-- Event types: Uniswap V2/V3 swaps (capital gain/loss) + staking/airdrop rewards (ordinary income).
-- Cost basis: **FIFO only**.
-- Free tier: blurred/withheld P&L summary + taxable-event counts.
-- Paid tier: **$2 USDC CSV export** (IRS Form 8949-style) gated by x402 on **Base Sepolia**.
-- Mock-first data: `LiquifyClient` + `PriceOracle` interfaces with fixtures; runs fully offline.
-- Demo-mode bypass for offline presentation.
-
-**Out (post-MVP, not precluded by the architecture):**
-- PDF export; BNB / Arbitrum / Optimism / Avalanche; HIFO & Specific-ID methods;
-  Postgres/Prisma persistence; LP add/remove, lending/borrow event types; real Liquify + CoinGecko.
-
----
-
-## Target audience
-
-Active DeFi traders, yield farmers, LP providers, DeFi beginners, and CPAs — see the PRD personas.
-MVP demo centers on the trader/yield-farmer case (swaps + income).
-
----
-
-## Primary user journey
-
-1. Land → connect wallet (wagmi) or paste an address.
-2. Select tax year → scan (mock Liquify events → classify → FIFO → aggregate).
-3. View free dashboard: headline P&L + event counts (per-row USD withheld server-side).
-4. Click **Export Full Report ($2 USDC)** → x402 payment modal → sign on Base Sepolia.
-5. Payment settles → CSV downloads.
-
----
-
-## Out-of-scope guarantees
-
-No account, no email, no KYC at any point. Free tier never exposes per-row USD figures over the wire.
+## MVP Vertical Slice
+The current build represents a complete vertical slice:
+1. **Connect:** Secure wallet connection (Phantom/MetaMask).
+2. **Scan:** Real-time data retrieval.
+3. **Analyze:** Visual P&L dashboard.
+4. **Pay:** Real on-chain USDC settlement.
+5. **Export:** Secure file generation and download.

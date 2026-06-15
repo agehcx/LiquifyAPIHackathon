@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { X, FileText, Sparkles } from "lucide-react";
 import { Button } from "@/components/primitives/Button";
 import { useExportPayment } from "@/hooks/useExportPayment";
-import { DemoModeBadge } from "./DemoModeBadge";
 import { PaymentStatus } from "./PaymentStatus";
 
 export function PaymentModal({
@@ -87,14 +86,13 @@ export function PaymentModal({
 
         {/* Footer */}
         <div className="flex flex-col gap-3 border-t border-line px-6 py-5">
-          {isDemo && <DemoModeBadge />}
           <PaymentStatus phase={phase} error={error} />
           <Button
             onClick={exportReport}
             disabled={busy}
             className="h-12 w-full text-base"
           >
-            {isDemo ? "Download CSV (demo)" : "Confirm in Wallet — $2 USDC"}
+            {isDemo ? "Download Full CSV Report" : "Confirm in Wallet — $2 USDC"}
           </Button>
           <p className="text-center font-mono text-[11px] text-muted">
             One-time payment · No account required

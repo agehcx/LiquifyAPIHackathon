@@ -1,15 +1,18 @@
 import { createConfig, http } from "wagmi";
 import { baseSepolia, mainnet, bsc, arbitrum, optimism, avalanche } from "wagmi/chains";
-import { injected } from "wagmi/connectors";
+import { injected, metaMask, coinbaseWallet } from "wagmi/connectors";
 
 /**
  * wagmi config. Ethereum mainnet provides read context for the MVP scan;
- * Base Sepolia is the network the x402 payment is signed on. Injected
- * (MetaMask / Coinbase Wallet) is the connector for the demo.
+ * Base Sepolia is the network the x402 payment is signed on.
  */
 export const wagmiConfig = createConfig({
   chains: [mainnet, baseSepolia, bsc, arbitrum, optimism, avalanche],
-  connectors: [injected()],
+  connectors: [
+    injected(),
+    metaMask(),
+    coinbaseWallet({ appName: "DeFi TaxGen" }),
+  ],
   ssr: true,
   transports: {
     [mainnet.id]: http(),

@@ -23,10 +23,17 @@ export async function getOrBuildReport(
   const cached = getCachedReport(key);
   if (cached) return cached;
 
-  const report = await buildReport(address, chainId, taxYear, costBasisMethod, {
-    liquify: createLiquifyClient(),
-    oracle: createPriceOracle(),
-  }, lotSelections);
+  const report = await buildReport(
+    address,
+    taxYear,
+    {
+      liquify: createLiquifyClient(),
+      oracle: createPriceOracle(),
+    },
+    chainId,
+    costBasisMethod,
+    lotSelections,
+  );
   setCachedReport(key, report);
   return report;
 }

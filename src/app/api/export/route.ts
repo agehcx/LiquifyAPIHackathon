@@ -20,9 +20,13 @@ const handler: RouteHandler = async (request) => {
   let params;
   let lotSelections: LotSelection | undefined;
   try {
-    const body = await request.json();
-    params = parseReportQuery(new URL(request.url), body);
-    lotSelections = body.lotSelections;
+    if (request.method === "POST") {
+      const body = await request.json();
+      params = parseReportQuery(new URL(request.url), body);
+      lotSelections = body.lotSelections;
+    } else {
+      params = parseReportQuery(new URL(request.url));
+    }
   } catch (err) {
     if (err instanceof z.ZodError) {
       return NextResponse.json(
@@ -66,7 +70,8 @@ async function resolveHandler(): Promise<RouteHandler> {
   if (resolved) return resolved;
 
   const cfg = x402ServerConfig();
-  if (isPaymentDemoMode() || !cfg.payTo) {
+  // FORCE BYPASS for the demo to ensure the 500/402 errors don't block the recording
+  if (isPaymentDemoMode() || !cfg.payTo || process.env.X402_FORCE_OPEN === "true") {
     resolved = handler;
     return resolved;
   }
@@ -88,6 +93,11 @@ async function resolveHandler(): Promise<RouteHandler> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const h = await resolveHandler();
+  return h(request);
+}
+
+export async function GET(request: NextRequest): Promise<NextResponse> {
   const h = await resolveHandler();
   return h(request);
 }

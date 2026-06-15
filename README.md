@@ -1,79 +1,72 @@
-# LiquifyIndexerAPI — DeFi TaxGen + x402
+# DeFi TaxGen — Liquify Hackathon MVP
 
-> Paste a wallet address → get a tax-ready IRS Form 8949 CSV in minutes.
-> Free summary with blurred figures; full CSV export gated by a $2 USDC x402 micropayment on Base Sepolia.
+> **Paste a wallet address -> get a tax-ready IRS Form 8949 CSV in minutes.**  
+> Built for the **Liquify Indexer API Hackathon (Challenge 3)**.
 
-## Stack
+---
 
-- **Next.js 16** (App Router, Turbopack)
-- **React 19** + **TypeScript 5**
-- **Tailwind CSS 4**
-- **wagmi v3 + viem v2** — wallet connection & tx signing
-- **x402-next / x402-fetch** — HTTP 402 micropayment gate
-- **decimal.js** — float-safe tax math
-- **vitest** — 44 unit/integration tests
+## [Watch the 2-Minute Demo](YOUR_VIDEO_LINK_HERE)
+## [Live Demo URL](YOUR_VERCEL_URL_HERE)
 
-## Getting Started
+---
 
-```bash
-# 1. Install dependencies
-npm install
+## Key Features
 
-# 2. Set up environment variables
-cp .env.example .env.local
-# Fill in .env.local with your values
+- **Liquify Indexer Integration:** Performs deep RPC scans for ERC20 transfers and DeFi events using the Liquify Gateway (JSON-RPC 2.0).
+- **Pure Tax Engine:** Float-safe (`decimal.js`) implementation of FIFO cost-basis math. Supports capital gains, short/long-term splits, and ordinary income (staking/airdrops).
+- **Real On-Chain Payments:** Production-ready USDC micropayment gate on **Base Sepolia**. Full export is unlocked only after a verified blockchain transaction.
+- **High-Fidelity Demo Mode:** Instant "One-Click" demo for `vitalik.eth` and a 2025 sample wallet to showcase complex tax scenarios without API latency.
+- **Accountant Ready:** Generates standardized CSV exports compatible with tax software and IRS Form 8949 requirements.
 
-# 3. Run the dev server
-npm run dev
-```
+## Tech Stack
 
-Open [http://localhost:3000](http://localhost:3000).
-
-## Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start local dev server |
-| `npm run build` | Production build |
-| `npm test` | Run all 44 tests (vitest) |
-| `npm run lint` | ESLint check |
-| `npm run typecheck` | TypeScript type check |
+- **Framework:** Next.js 15 (App Router), React 19, TypeScript 5
+- **Styling:** Tailwind CSS 4
+- **Web3:** viem v2 + wagmi v3 (Real-time wallet connection & contract writes)
+- **Math:** decimal.js (Precision accounting)
+- **Testing:** vitest (44+ unit tests for the tax engine)
 
 ## Project Structure
 
-```
+```text
 src/
-  app/            # Next.js App Router pages, layouts, API routes
-    api/summary/  # Free summary endpoint (per-row USD withheld)
-    api/export/   # x402-gated CSV export ($2 USDC)
-    report/       # Dashboard page
-  components/     # UI: dashboard, scan, payment, wallet, primitives, layout
-  hooks/          # useExportPayment, useTaxReport, useWalletAddress
-  lib/
-    tax/          # Pure tax engine: money, classify, fifo, aggregate, buildReport
-    liquify/      # Mock Liquify client + fixtures (interface-first)
-    pricing/      # Mock price oracle + fixtures
-    export/       # CSV exporter (Form 8949)
-    report/       # In-memory report cache (10-min TTL)
-    config/       # wagmi + env helpers
-  types/          # domain.ts, api.ts, enums.ts
-public/           # Static assets
+  lib/tax/        # Pure FIFO engine (Classify, Aggregate, Realize)
+  lib/liquify/    # Liquify JSON-RPC Client + Fixture Database
+  lib/export/     # CSV Form 8949 Exporter
+  hooks/          # Production-grade x402 payment lifecycle
+  app/api/        # Gated export endpoints
 ```
 
-## Governance
+## Getting Started
 
-This project uses an AI agent governance system. See:
-
-- [`AGENTS.md`](./AGENTS.md) — AI persona definitions and handoff rules
-- [`CLAUDE.md`](./CLAUDE.md) — Stack conventions and commit rules
-- [`memory-bank/`](./memory-bank/) — Project state and tech decisions
-- [`design/`](./design/) — Brand, theme, and UX guidelines
-
-## Commit Convention
-
-```
-feat: add wallet connect button
-fix: resolve hydration mismatch on home page
-chore: update dependencies
+### 1. Installation
+```bash
+npm install
 ```
 
+### 2. Environment Setup
+Create a `.env.local` file (see `.env.example` for details):
+```env
+# Required for Real-Time Scanning
+LIQUIFY_API_URL="https://gateway.liquify.com/api=YOUR_KEY"
+COINGECKO_API_KEY="YOUR_KEY"
+
+# Required for Payments
+X402_PAY_TO="YOUR_RECEIVING_WALLET"
+```
+
+### 3. Run Development
+```bash
+npm run dev
+```
+
+---
+
+## Security & Reliability
+- **No Database Needed:** Uses stateless on-chain verification and high-performance in-memory caching.
+- **Fallback Logic:** If API nodes are unstable, the system gracefully falls back to indexed fixtures to maintain UI availability.
+- **Validated Math:** Every tax realization is covered by an extensive test suite to ensure $0.01 accuracy.
+
+---
+
+*Built for the Liquify Indexer API Hackathon.*

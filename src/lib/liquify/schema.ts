@@ -23,7 +23,7 @@ export const decodedEventSchema = z.object({
   blockNumber: z.number().int().nonnegative(),
   timestamp: z.number().int().positive(),
   chainId: z.number().int().positive(),
-  protocol: z.enum(["UNISWAP_V2", "UNISWAP_V3", "STAKING", "AIRDROP", "AAVE", "COMPOUND"]),
+  protocol: z.enum(["UNISWAP_V2", "UNISWAP_V3", "STAKING", "AIRDROP", "AAVE", "COMPOUND", "ERC20"]),
   eventName: z.string().min(1),
   wallet: addressSchema,
   sent: z.array(tokenAmountSchema).optional(),

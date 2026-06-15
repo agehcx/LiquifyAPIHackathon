@@ -1,22 +1,27 @@
 import type { Address, DecodedEvent } from "@/types/domain";
 import type { GetEventsOptions, LiquifyClient } from "./LiquifyClient";
-import { FIXTURE_EVENTS } from "./fixtures";
+import { FIXTURE_EVENTS, VITALIK_EVENTS, VITALIK_WALLET } from "./fixtures";
 
 /**
- * Fixture-backed Liquify client. Returns the demo wallet's events for any
- * address (so the demo works with any input), filtered by the requested
- * timestamp window and sorted by (timestamp, logIndex).
+ * Fixture-backed Liquify client. Returns demo data for specific addresses
+ * or a default set, filtered by the requested timestamp window.
  */
 export class MockLiquifyClient implements LiquifyClient {
   constructor(private readonly events: DecodedEvent[] = FIXTURE_EVENTS) {}
 
   async getDecodedEvents(
-    _address: Address,
+    address: Address,
     chainId: number,
     opts: GetEventsOptions = {},
   ): Promise<DecodedEvent[]> {
     const { fromTs, toTs } = opts;
-    return this.events.filter(
+    
+    // Choose the dataset based on the address
+    const dataset = address.toLowerCase() === VITALIK_WALLET.toLowerCase() 
+        ? VITALIK_EVENTS 
+        : this.events;
+
+    return dataset.filter(
       (e) =>
         e.chainId === chainId &&
         (fromTs === undefined || e.timestamp >= fromTs) &&

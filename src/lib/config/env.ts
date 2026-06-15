@@ -20,7 +20,7 @@ export function x402ServerConfig(): X402ServerConfig {
       process.env.X402_NETWORK === "base" ? "base" : "base-sepolia",
     facilitatorUrl: process.env.X402_FACILITATOR_URL,
     usdcAddress: process.env.X402_USDC_ADDRESS as Address | undefined,
-    priceUsd: process.env.X402_PRICE ?? "$2",
+    priceUsd: process.env.X402_PRICE || "$2",
   };
 }
 

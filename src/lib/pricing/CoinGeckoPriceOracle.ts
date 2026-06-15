@@ -102,9 +102,12 @@ export class CoinGeckoPriceOracle implements PriceOracle {
       "Content-Type": "application/json",
     };
     if (this.apiKey) {
-      // Use for CoinGecko Pro API
-      url.host = "pro-api.coingecko.com";
-      headers["x-cg-pro-api-key"] = this.apiKey;
+      if (process.env.COINGECKO_IS_PRO === "true") {
+        url.host = "pro-api.coingecko.com";
+        headers["x-cg-pro-api-key"] = this.apiKey;
+      } else {
+        url.searchParams.set("x_cg_demo_api_key", this.apiKey);
+      }
     }
 
     const response = await fetch(url.toString(), { headers });

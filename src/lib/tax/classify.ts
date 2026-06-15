@@ -88,6 +88,10 @@ export async function classifyEvent(
         return { ...base, kind: "SWAP", treatment: "NON_TAXABLE" };
     }
 
+    case "ERC20": {
+      return { ...base, kind: "SWAP", treatment: "NON_TAXABLE" };
+    }
+
     // TODO: Implement LP events
     // case "LP_ADD": {
     //   return { ...base, kind: "LP_ADD", treatment: "NON_TAXABLE" };
